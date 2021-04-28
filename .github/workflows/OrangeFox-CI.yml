@@ -1,0 +1,40 @@
+name: OrangeFox CI
+on:
+  workflow_dispatch:
+
+env:
+  MANIFEST: "https://gitlab.com/OrangeFox/Manifest.git -b fox_9.0"
+  DT_LINK: "https://github.com/Discow/android_device_xiaomi_wayne-OrangeFox.git"
+  VENDOR: "xiaomi"
+  CODENAME: "wayne"
+  GH_BOT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  OrangeFox_CI:
+    runs-on: ubuntu-20.04
+
+    steps:
+       - name: Cleaning Up Runner
+         uses: rokibhasansagar/slimhub_actions@main
+
+       - name: Recovery Compilation
+         uses: Carbonatedblack/Recovery-Compiler@production
+
+       - name: Release Builds
+         run: |
+              sudo apt-get update && sudo apt-get install sshpass -y
+              if [[ "$GITHUB_ACTIONS" == "true" ]]; then
+              GH_USER=$(echo ${GITHUB_REPOSITORY} | cut -d'/' -f1)
+              GH_REPO=$(echo ${GITHUB_REPOSITORY} | cut -d'/' -f2)
+              GH_SHA=$(echo ${GITHUB_SHA})
+              elif [[ "$CIRCLECI" == "true" ]]; then
+              GH_USER=$(echo ${CIRCLE_PROJECT_USERNAME})
+              GH_REPO=$(echo ${CIRCLE_PROJECT_REPONAME})
+              GH_SHA=$(echo ${CIRCLE_SHA1})
+              fi
+              UPLOAD_PATH=${BuildPath}/out/target/product/${CODENAME}/upload
+              RELEASE_TAG=9.0-test
+              cd ${BuildPath}/out/target/product/${CODENAME}
+              mkdir upload
+              cp OrangeFox* ClassicTheme.zip ./upload
+              ghr -t ${GH_BOT_TOKEN} -u ${GH_USER} -r ${GH_REPO} -n "Test Release for $(echo $CODENAME)" -b "OrangeFox $(echo $RELEASE_TAG)" -c ${GH_SHA} -delete ${RELEASE_TAG} ${UPLOAD_PATH}
