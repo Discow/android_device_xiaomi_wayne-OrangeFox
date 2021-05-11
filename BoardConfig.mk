@@ -52,6 +52,7 @@ TARGET_2ND_CPU_VARIANT := kryo
 TARGET_CRYPTFS_HW_PATH := vendor/qcom/opensource/commonsys/cryptfs_hw
 TARGET_HW_DISK_ENCRYPTION := true
 TW_INCLUDE_CRYPTO := true
+TW_INCLUDE_CRYPTO_FBE := true
 TW_INCLUDE_FBE := true
 
 # Hack: prevent anti rollback
